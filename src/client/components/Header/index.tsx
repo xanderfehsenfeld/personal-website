@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import { Container, Subscribe } from 'unstated'
 import axios from 'axios'
 
