@@ -1,15 +1,39 @@
 'use strict'
 import * as express from 'express'
+
+import { Datastore } from '@google-cloud/datastore'
+import * as session from 'express-session'
 import * as passport from 'passport'
 import * as bodyParser from 'body-parser'
+
+import {
+  oauth2Routes,
+  config,
+  redirectToLoginIfUnauthorized,
+  authRequired,
+} from './lib/oauth2'
 import { getEndpointsForEntity } from './routes'
 import { Coupon, Partner } from '../model'
 
+const DatastoreStore = require('@google-cloud/connect-datastore')(session)
+
 const app = express()
 
+const sessionConfig = {
+  resave: false,
+  saveUninitialized: false,
+  secret: config['OAUTH2_CLIENT_SECRET'],
+  signed: true,
+  store: new DatastoreStore({
+    dataset: new Datastore({ kind: 'express-sessions' }),
+  }),
+}
+
+app.use(session(sessionConfig))
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(bodyParser.json())
+app.use(oauth2Routes)
 
 const defaultTestCoupons: Coupon[] = [
   {
@@ -44,14 +68,14 @@ const defaultTestPartners: Partner[] = [
 ]
 app.use(getEndpointsForEntity(defaultTestPartners, '/api/partners'))
 
-app.get('/user', (req, res) => {
+app.get('/user', authRequired, (req, res) => {
   res
     .status(200)
     .send(req.user)
     .end()
 })
 
-app.use('/', express.static('build/client'))
+app.use('/', redirectToLoginIfUnauthorized, express.static('build/client'))
 
 const PORT = process.env.PORT || 8080
 app.listen(PORT, () => {

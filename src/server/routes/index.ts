@@ -1,5 +1,6 @@
 import { Router, RequestHandler } from 'express'
 import getDatastore from '../lib/getDatastore'
+import { authRequired } from '../lib/oauth2'
 import { Entity } from '../../model'
 
 const datastore = getDatastore()
@@ -80,7 +81,7 @@ export const getEndpointsForEntity = (
 
   populateDataStore()
 
-  routesForEntity.get(endpoint, returnEntities)
+  routesForEntity.get(endpoint, authRequired, returnEntities)
 
   routesForEntity.delete(
     `${endpoint}/all`,
@@ -93,10 +94,15 @@ export const getEndpointsForEntity = (
     returnEntities,
   )
 
-  routesForEntity.delete(endpoint, deleteEntitiesInBody, returnEntities)
+  routesForEntity.delete(
+    endpoint,
+    authRequired,
+    deleteEntitiesInBody,
+    returnEntities,
+  )
 
-  routesForEntity.put(endpoint, putOrPostHandler, returnEntities)
-  routesForEntity.post(endpoint, putOrPostHandler, returnEntities)
+  routesForEntity.put(endpoint, authRequired, putOrPostHandler, returnEntities)
+  routesForEntity.post(endpoint, authRequired, putOrPostHandler, returnEntities)
 
   return routesForEntity
 }
