@@ -5,12 +5,7 @@ import * as passport from 'passport'
 
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import { RequestHandler } from 'express-serve-static-core'
-export const config = {
-  OAUTH2_CLIENT_ID:
-    '412991012939-qu4v56b3nug6goac8bb83l6ncdsdq32h.apps.googleusercontent.com',
-  OAUTH2_CLIENT_SECRET: 'KRaMDjlo5K9RMeGcDAYWa_si',
-  OAUTH2_CALLBACK: '/auth/google/callback',
-}
+import { config } from '../config'
 
 const extractProfile = (profile) => {
   let imageUrl = ''

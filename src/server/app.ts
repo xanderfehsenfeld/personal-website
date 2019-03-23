@@ -8,12 +8,12 @@ import * as bodyParser from 'body-parser'
 
 import {
   oauth2Routes,
-  config,
   redirectToLoginIfUnauthorized,
   authRequired,
 } from './lib/oauth2'
 import { getEndpointsForEntity } from './routes'
 import { Coupon, Partner } from '../model'
+import { config } from './config'
 
 const DatastoreStore = require('@google-cloud/connect-datastore')(session)
 

@@ -48,6 +48,7 @@
     "fuse-box": "^3.5.0",
     "fuse-box-typechecker": "^2.10.0",
     "http-proxy-middleware": "^0.19.1",
+    "node-sass": "^4.11.0",
     "typescript": "^3.3.3333"
   },
   "cloud-repo-tools": {
