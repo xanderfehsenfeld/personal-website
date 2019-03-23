@@ -50,7 +50,7 @@ interface IWeather {
 }
 
 const urlOfSeattleWeather =
-  'http://api.apixu.com/v1/forecast.json?key=914e66579b3648ca8a7184809192303&q=98110&days=10'
+  'https://api.apixu.com/v1/forecast.json?key=914e66579b3648ca8a7184809192303&q=98110&days=10'
 
 interface IState {
   startedInitialFetch: boolean
@@ -149,7 +149,7 @@ const Weather = () => (
               display: 'flex',
               flexDirection: 'column',
               width: '100%',
-              justifyContent: 'center',
+              justifyContent: 'flex-start',
               background: 'linear-gradient(45deg, #232435, #35415f)',
               alignItems: 'flex-start',
             }}
@@ -157,11 +157,12 @@ const Weather = () => (
             <h2
               style={{
                 alignSelf: 'center',
-                paddingBottom: '80px',
                 color: '#8f90a3',
+                textAlign: 'center',
+                padding: 20,
               }}
             >
-              Bainbridge Is Weather Forecast
+              Bainbridge Weather Forecast
             </h2>
             <div style={{ overflowX: 'scroll', maxWidth: '100%' }}>
               <div
