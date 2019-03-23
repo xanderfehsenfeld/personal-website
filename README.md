@@ -10,7 +10,7 @@ Before you can run or deploy the sample, you need to do the following:
 
         npm install
 
-1.  Install the [gcloud command-line tool](https://cloud.google.com/pubsub/docs/quickstart-cli).
+1.  Install the [gcloud command-line tool](https://cloud.google.com/pubsub/docs/quickstart-cli) and run `gcloud init`. Choose an account and a project ID.
 
 ## Running locally
 
