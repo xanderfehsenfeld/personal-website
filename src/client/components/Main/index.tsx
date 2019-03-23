@@ -6,10 +6,7 @@ import Weather from '../Weather'
 
 const Main = () => (
   <UnstatedProvider>
-    <Header />
-    <div className={'container'}>
-      <Weather />
-    </div>
+    <Weather />
   </UnstatedProvider>
 )
 

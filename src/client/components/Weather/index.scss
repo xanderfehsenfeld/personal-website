@@ -1,12 +1,13 @@
 .weather {
+  color: #8f90a3;
   display: flex;
+  flex: 1;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   min-height: 100%;
   margin: 0;
   padding: 0;
-  color: #8f90a3;
   background-attachment: fixed;
 }
 
