@@ -2,6 +2,7 @@ import * as React from 'react'
 import axios from 'axios'
 import { Container, Subscribe } from 'unstated'
 import './index.scss'
+import './SpinningTheme.scss'
 
 interface Condition {
   text: string
@@ -16,12 +17,10 @@ interface CurrentWeather {
   wind_mph: number
   wind_degree: number
   wind_dir: string
-  precip_mm: number
   precip_in: number
   humidity: number
   cloud: number
   gust_mph: number
-  gust_kph: number
 }
 
 interface Day {
@@ -49,47 +48,32 @@ interface IWeather {
   }
 }
 
-const urlOfSeattleWeather =
-  'https://api.apixu.com/v1/forecast.json?key=914e66579b3648ca8a7184809192303&q=98110&days=10'
-
-interface IState {
-  startedInitialFetch: boolean
-  currentWeather?: CurrentWeather
-  location?: string
-  forecast?: IForecast[]
-}
-class WeatherContainer extends Container<IState> {
-  state: IState = { startedInitialFetch: false }
-  fetchWeather = async () => {
-    this.setState({ startedInitialFetch: true })
-    const { data } = await axios.get<IWeather>(urlOfSeattleWeather)
-    this.setState({
-      currentWeather: data.current,
-      location: data.location.name,
-      forecast: data.forecast.forecastday,
-    })
-  }
-}
-
-const WeatherIcon = ({ condition }: { condition: string }) => {
+const WeatherIcon = ({
+  condition,
+  isLarge = false,
+}: {
+  condition: string
+  isLarge?: boolean
+}) => {
   switch (condition.toLowerCase()) {
     case 'partly cloudy':
       return (
-        <div className="partly_cloudy">
+        <div className={`partly_cloudy ${isLarge ? 'large-weather' : ''}`}>
           <div className="partly_cloudy__sun" />
           <div className="partly_cloudy__cloud" />
         </div>
       )
     case 'sunny':
-      return <div className="sunny" />
+      return <div className={`sunny ${isLarge ? 'large-weather' : ''}`} />
 
     case 'cloudy':
-      return <div className="cloudy" />
+      return <div className={`cloudy ${isLarge ? 'large-weather' : ''}`} />
 
     case 'rainy':
     case 'moderate or heavy rain shower':
+    case 'patchy rain possible':
       return (
-        <div className="rainy">
+        <div className={`rainy ${isLarge ? 'large-weather' : ''}`}>
           <div className="rainy__cloud" />
           <div className="rainy__rain" />
         </div>
@@ -115,23 +99,67 @@ const daysOfTheWeek = [
   'Sunday',
 ]
 
+const Wind = ({
+  maxwind_mph,
+  wind_mph,
+}: {
+  maxwind_mph?: number
+  wind_mph?: number
+}) => (
+  <h6>
+    {maxwind_mph !== undefined ? `${maxwind_mph} mph max` : `${wind_mph} mph`}
+  </h6>
+)
+
 const WeatherCondition = ({
   condition,
   temp_f,
   wind_mph,
   day,
+  isLarge = false,
+  maxtemp_f,
+  mintemp_f,
+  maxwind_mph,
 }: {
   condition: string
-  temp_f: number
-  wind_mph: number
-  day: number
+  temp_f?: number
+  wind_mph?: number
+  day?: number
+  isLarge?: boolean
+  maxtemp_f?: number
+  mintemp_f?: number
+  maxwind_mph?: number
 }) => (
-  <div className={'weather'}>
-    <h5>{daysOfTheWeek[day]}</h5>
-    <WeatherIcon condition={condition} />
-    <h6>{`${temp_f}°F / ${wind_mph} mph`}</h6>
+  <div className={`weather`} title={condition}>
+    <h5>{day !== undefined ? daysOfTheWeek[day] : 'Now'}</h5>
+    <WeatherIcon condition={condition} isLarge={isLarge} />
+    {temp_f && <h6>{`${temp_f}°F Avg`}</h6>}
+    {maxtemp_f && mintemp_f && <h6>{`${mintemp_f}°F / ${maxtemp_f}°F `}</h6>}
+    <Wind maxwind_mph={maxwind_mph} wind_mph={wind_mph} />
   </div>
 )
+
+const urlOfBainbridgeWeather =
+  'https://api.apixu.com/v1/forecast.json?key=914e66579b3648ca8a7184809192303&q=98110&days=10'
+
+interface IState {
+  startedInitialFetch: boolean
+  currentWeather?: CurrentWeather
+  location?: string
+  forecast?: IForecast[]
+}
+class WeatherContainer extends Container<IState> {
+  state: IState = { startedInitialFetch: false }
+  fetchWeather = async () => {
+    this.setState({ startedInitialFetch: true })
+    const { data } = await axios.get<IWeather>(urlOfBainbridgeWeather)
+    this.setState({
+      currentWeather: data.current,
+      location: data.location.name,
+      forecast: data.forecast.forecastday,
+    })
+  }
+}
 
 const Weather = () => (
   <Subscribe to={[WeatherContainer]}>
@@ -139,8 +167,8 @@ const Weather = () => (
       if (!state.startedInitialFetch) {
         fetchWeather()
       }
-      if (state.forecast) {
-        const { forecast } = state
+      if (state.forecast && state.currentWeather) {
+        const { forecast, currentWeather } = state
 
         return (
           <div
@@ -164,6 +192,16 @@ const Weather = () => (
             >
               Bainbridge Weather Forecast
             </h2>
+            <div style={{ alignSelf: 'center' }}>
+              <WeatherCondition
+                isLarge={true}
+                temp_f={currentWeather.temp_f}
+                wind_mph={currentWeather.wind_mph}
+                condition={currentWeather.condition.text}
+              />
+            </div>
+            <br />
+            <br />
             <div style={{ overflowX: 'scroll', maxWidth: '100%' }}>
               <div
                 style={{
@@ -174,14 +212,10 @@ const Weather = () => (
               >
                 {forecast.map((forecast: IForecast) => {
                   const { text } = forecast.day.condition
-
-                  const { avgtemp_f, maxwind_mph } = forecast.day
-
                   return (
                     <WeatherCondition
                       key={forecast.date}
-                      temp_f={avgtemp_f}
-                      wind_mph={maxwind_mph}
+                      {...forecast.day}
                       condition={text}
                       day={new Date(forecast.date).getDay()}
                     />
